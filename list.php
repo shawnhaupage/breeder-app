@@ -1,58 +1,47 @@
 <?php
-// Connect to the database
-$host = 'your-database-host';
-$username = 'your-database-username';
-$password = 'your-database-password';
-$dbname = 'your-database-name';
-$conn = new mysqli($host, $username, $password, $dbname);
+// Initialize variables
+$entries = array();
 
-// Check the connection
-if ($conn->connect_error) {
-	die('Connection failed: ' . $conn->connect_error);
+// Read entries from file
+if (file_exists('entries.json')) {
+  $entries = json_decode(file_get_contents('entries.json'), true);
 }
-
-// Retrieve all schedules from the database
-$sql = 'SELECT * FROM schedules';
-$result = $conn->query($sql);
-
-// Close the database connection
-$conn->close();
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Pet Breeding Schedule</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+  <title>Breeder Buddy - List</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-	<div class="container">
-		<h1 class="text-center mb-5">All Pet Breeding Schedules</h1>
-		<?php if ($result && $result->num_rows > 0): ?>
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Breed</th>
-						<th>Male</th>
-						<th>Female</th>
-						<th>Date</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<tr>
-							<td><?= $row['breed'] ?></td>
-							<td><?= $row['male'] ?></td>
-							<td><?= $row['female'] ?></td>
-							<td><?= $row['date'] ?></td>
-						</tr>
-					<?php endwhile; ?>
-				</tbody>
-			</table>
-		<?php else: ?>
-			<p>No schedules found.</p>
-		<?php endif; ?>
-		<p><a href="schedule.php">Add a new schedule</a></p>
-	</div>
+  <div class="container my-5">
+    <h1>Breeder Buddy - List</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Breed</th>
+          <th>Animal Type</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Days Between Litters</th>
+          <th>Number of Litters</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($entries as $entry): ?>
+          <tr>
+            <td><?php echo $entry['breed']; ?></td>
+            <td><?php echo $entry['animal_type']; ?></td>
+            <td><?php echo $entry['start_date']; ?></td>
+            <td><?php echo $entry['end_date']; ?></td>
+            <td><?php echo $entry['days_between']; ?></td>
+            <td><?php echo $entry['number_of_litters']; ?></td>
+            <td><?php echo $entry['notes']; ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>

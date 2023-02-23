@@ -1,0 +1,21 @@
+body {
+	font-family: sans-serif;
+}
+
+h1 {
+	text-align: center;
+}
+
+form {
+	margin: 0 auto;
+	width: 50%;
+}
+
+label {
+	display: inline-block;
+	width: 100px;
+}
+
+input[type="text"], input[type="date"] {
+	width: 200px;
+}

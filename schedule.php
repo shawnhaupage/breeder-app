@@ -1,53 +1,42 @@
 <?php
-// Check if the form was submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  // Initialize variables
+  $breed = '';
+  $animal_type = '';
+  $start_date = '';
+  $end_date = '';
+  $days_between = '';
+  $number_of_litters = '';
+  $notes = '';
 
-	// Get the form values
-	$breed = isset($_POST['breed']) ? trim($_POST['breed']) : '';
-	$male = isset($_POST['male']) ? trim($_POST['male']) : '';
-	$female = isset($_POST['female']) ? trim($_POST['female']) : '';
-	$date = isset($_POST['date']) ? trim($_POST['date']) : '';
+  // Check if form has been submitted
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Collect form data
+    $breed = $_POST['breed'];
+    $animal_type = $_POST['animal_type'];
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    $days_between = $_POST['days_between'];
+    $number_of_litters = $_POST['number_of_litters'];
+    $notes = $_POST['notes'];
 
-	// Validate the form values
-	$errors = [];
-	if (empty($breed)) {
-		$errors[] = 'Breed is required.';
-	}
-	if (empty($male)) {
-		$errors[] = 'Male is required.';
-	}
-	if (empty($female)) {
-		$errors[] = 'Female is required.';
-	}
-	if (empty($date)) {
-		$errors[] = 'Date is required.';
-	} else if (!preg_match('/\d{4}-\d{2}-\d{2}/', $date)) {
-		$errors[] = 'Invalid date format. Please use the format YYYY-MM-DD.';
-	}
-
-	// If there are no errors, save the schedule
-	if (empty($errors)) {
-		// Connect to the database
-		$host = 'your-database-host';
-		$username = 'your-database-username';
-		$password = 'your-database-password';
-		$dbname = 'your-database-name';
-		$conn = new mysqli($host, $username, $password, $dbname);
-
-		// Check the connection
-		if ($conn->connect_error) {
-			die('Connection failed: ' . $conn->connect_error);
-		}
-
-		// Insert the schedule into the database
-		$sql = "INSERT INTO schedules (breed, male, female, date) VALUES ('$breed', '$male', '$female', '$date')";
-		if ($conn->query($sql) === TRUE) {
-			$message = 'Schedule saved successfully.';
-		} else {
-			$message = 'Error: ' . $sql . '<br>' . $conn->error;
-		}
-
-		// Close the database connection
-		$conn->close();
-	}
-}
+    // Validate form data
+    if (empty($breed) || empty($animal_type) || empty($start_date) || empty($end_date) || empty($days_between) || empty($number_of_litters)) {
+      $error_message = 'All fields are required.';
+    } elseif (!preg_match('/^[0-9]+$/', $days_between) || !preg_match('/^[0-9]+$/', $number_of_litters)) {
+      $error_message = 'Days between litters and number of litters must be a positive integer.';
+    } elseif (strtotime($start_date) >= strtotime($end_date)) {
+      $error_message = 'End date must be after start date.';
+    } else {
+      // Calculate litter dates
+      $litter_dates = array();
+      $current_date = strtotime($start_date);
+      for ($i = 0; $i < $number_of_litters; $i++) {
+        $litter_date = strtotime('+' . $days_between . ' days', $current_date);
+        if ($litter_date > strtotime($end_date)) {
+          break;
+        }
+        $litter_dates[] = date('Y-m-d', $litter_date);
+        $current_date = $litter_date;
+      }
+    }
+  }
